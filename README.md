@@ -1,7 +1,7 @@
 ### RealTime-Logs-UI
 See live updates of Server log file using the web UI (Node.js and NPM required to run the project)
 
-#####Installation:
+#####Local Installation:
 
 1. Go to repository folder "cd repo_name"
 2. Run: ```npm install``` command to install project dependency (that is socket.io in our case)
