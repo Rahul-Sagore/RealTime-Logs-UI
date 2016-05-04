@@ -8,17 +8,19 @@
 
   // On File changed event sent by the server
   socket.on("changed", function(data){
-    var accumulate = "";
-    var log_length = data.data.length;
+    if(data) {
+      var accumulate = "";
+      var log_length = data.data.length;
 
-    // Updating DOM
-    for(var i = 0; i < log_length; i++) {
-      accumulate += "<div>" + data.data[i] + "</div>";
+      // Updating DOM
+      for(var i = 0; i < log_length; i++) {
+        accumulate += "<div>" + data.data[i] + "</div>";
+      }
+      log_section.innerHTML +=  accumulate;
+
+      // Keep the terminal scrolling
+      updateScroll()
     }
-    log_section.innerHTML +=  accumulate;
-
-    // Keep the terminal scrolling
-    updateScroll()
   });
 
   function updateScroll(){

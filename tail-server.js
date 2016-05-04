@@ -1,5 +1,7 @@
 // REAL TIME DISPLAY LOAG UPDATE 
-var server = require("http").createServer();
+var express = require("express")
+var app = express();
+var server = require("http").createServer(app);
 var io = require("socket.io")(server);
 var fs = require("fs");
 
@@ -7,35 +9,56 @@ var fs = require("fs");
 io.on("connection", function(client) {
   console.log("Client connected.. ");
   var logfile = process.argv[2]; //LOG FILE THAT NEED TO BE MONITORED
-  var oldLength = 0;
 
   // Reading log file
   function sendLogs() {
-    fs.readFile(logfile, 'utf8', function(err, contents) {
-      var fileArray = contents.split("\n"); //Converting file lines into array
-      var length = fileArray.length // Length of the array
-      var linesToSend = []
+    var fileContent = fs.readFileSync(logfile).toString();
+    var position = fileContent.length;
+    // Manipulating filecontent
+    var contetnArray = fileContent.split("\n")
+    var length = contetnArray.length
+    var linesToSend = contetnArray.slice(length-10, length);
 
-      // slicing the length of the file based on previously update file
-      if(oldLength > 0 && oldLength != length) {
-        linesToSend = fileArray.slice(oldLength, length); //Server after the previously sent data
-      } else if (oldLength == 0) {
-        linesToSend = fileArray.slice(length-10, length); // Serve last 10 line for the first time
-      }
+    emitChanges(linesToSend);
 
-      if(linesToSend.length) { //Check if there is any lines to send
-        client.emit("changed", {data: linesToSend});
-      }
-      oldLength = length; //Update the current file's length
+    // Watch for changes
+    fs.watch(logfile, function(event, filename) {
+      // Open file in read mode
+      fs.open(logfile, "r", function(err, fd) {
+        // Get stas of the file to see how much content has been changed
+        // Then read that particular data only
+        fs.fstat(fd, function(err, fstats){
+          var difference = fstats.size - position;
+          // Checking if file has changed
+          if(difference) {
+            var buffer = new Buffer(difference);
+            fs.read(fd, buffer, 0, buffer.length, position, function (err, bytes) {
+              if(bytes > 0) {
+                changedContent = buffer.slice(0, bytes).toString();
+                emitChanges(changedContent.split("\n"));
+              }
+            });
+          }
+          position = fstats.size
+        })
+      });
     });
   }
-  sendLogs();
 
-  // watch for the changes in the log file
-  fs.watch(logfile, function(event, filename) {
-    if(filename){
-      sendLogs()
+  // Emit Changes to web UI
+  function emitChanges(content) {
+    if(content.length) { //Check if there is any lines to send
+      client.emit("changed", {data: content});
     }
-  });
+  }
 });
+
+// WEB UI ROUTING And SERVING STATIC FILES
+app.use("/css", express.static(__dirname + '/css'));
+app.use("/js", express.static(__dirname + '/js'));
+
+app.get("/", function(req, res){
+  res.sendFile(__dirname + "/index.html")
+})
+
 server.listen(8080); //Serve listening on this port
