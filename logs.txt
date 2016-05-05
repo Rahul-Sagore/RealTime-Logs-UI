@@ -19,13 +19,10 @@
 192.168.72.177 - - [22/Dec/2002:23:32:19 -0400] "GET 
    /search.php HTTP/1.1" 400 1997 www.yahoo.com 
    "-" "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; ...)" "-"192.168.72.177 - - [22/Dec/2002:23:32:19 -0400] "GET 
-   lasalsksasks
-   ass
-   asjdss
-   sas
-   Rahul
-   sagore
-   fsf
-   rhaul
-   as
-   r
+rahul
+dad
+dad
+adda
+adad
+add
+ass

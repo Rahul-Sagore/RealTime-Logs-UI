@@ -44,6 +44,7 @@ io.on("connection", function(client) {
       });
     });
   }
+  sendLogs()
 
   // Emit Changes to web UI
   function emitChanges(content) {
